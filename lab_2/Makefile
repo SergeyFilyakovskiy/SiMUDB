@@ -27,3 +27,7 @@ reset:
 
 clean:
 	docker compose -f $(COMPOSE_FILE) down -v
+
+# Анализ и оптимизация запросов
+analyze:
+	docker compose -f $(COMPOSE_FILE) exec -T postgres psql -U postgres -d ApplicationDatabase < analyze.sql
