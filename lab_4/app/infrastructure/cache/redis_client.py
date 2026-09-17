@@ -1,27 +1,27 @@
+# app/core/redis.py
 from redis.asyncio import Redis, ConnectionPool
 from app.core.settings import settings
 
-_pool: ConnectionPool | None = None
-_redis: Redis | None = None
+redis_pool: ConnectionPool | None = None
 
-async def get_redis() -> Redis:
-    global _pool, _redis
-    if _redis is None:
-        _pool = ConnectionPool.from_url(
-            settings.redis_url,
-            max_connections = 20,
-            decode_responses= False,
-        )
-        _redis = Redis(connection_pool= _pool)
-
-    return _redis
+async def init_redis() -> None:
+    global redis_pool
+    redis_pool = ConnectionPool.from_url(
+        settings.redis_url,
+        max_connections=20,
+        decode_responses=False,
+    )
 
 async def close_redis() -> None:
-    global _pool, _redis
-    if _redis:
-        await _redis.aclose()
-        _redis = None
-    if _pool:
-        await _pool.aclose()
-        _pool = None
     
+    global redis_pool
+    if redis_pool:
+        await redis_pool.aclose()
+        redis_pool = None
+
+async def get_redis() -> Redis:
+
+    if redis_pool is None:
+        raise RuntimeError("Redis pool is not initialized. Call init_redis() first.")
+    
+    return Redis(connection_pool=redis_pool)
