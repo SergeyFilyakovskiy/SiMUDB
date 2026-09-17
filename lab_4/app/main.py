@@ -10,7 +10,7 @@ from app.api.v1.routers import v1_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with AsyncExitStack() as stack:
-        await stack.enter_async_context(redis_lifespan())
+        await stack.enter_async_context(redis_lifespan(app))
         await stack.enter_async_context(mongo_lifespan(app))
         yield
 

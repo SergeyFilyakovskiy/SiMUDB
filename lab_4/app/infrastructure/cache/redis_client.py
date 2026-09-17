@@ -1,36 +1,23 @@
-# app/core/redis.py
+from fastapi import FastAPI
 from redis.asyncio import Redis, ConnectionPool
 from app.core.settings import settings
 from contextlib import asynccontextmanager
 
-redis_pool: ConnectionPool | None = None
-
-async def init_redis() -> None:
-    global redis_pool
-    redis_pool = ConnectionPool.from_url(
-        settings.redis_url,
-        max_connections=20,
-        decode_responses=False,
-    )
-
-async def close_redis() -> None:
-    
-    global redis_pool
-    if redis_pool:
-        await redis_pool.aclose()
-        redis_pool = None
-
-async def get_redis() -> Redis:
-
-    if redis_pool is None:
-        raise RuntimeError("Redis pool is not initialized. Call init_redis() first.")
-    
-    return Redis(connection_pool=redis_pool)
 
 @asynccontextmanager
-async def redis_lifespan():
-    await init_redis()
+async def redis_lifespan(app: FastAPI):
+    pool = ConnectionPool.from_url(
+        url= settings.redis_url,
+        max_connections=20,
+        decode_responses = False,
+    )
+    app.state.redis = Redis(
+        connection_pool=pool,
+    )
+
+    await app.state.redis.ping()
     try:
         yield
-    finally: 
-        await close_redis()
+    finally:
+        await app.state.redis.aclose()
+        
