@@ -37,4 +37,5 @@ class Config(BaseSettings):
             f"mongodb://{self.mongo_user}:{self.mongo_password.get_secret_value()}"
             f"@{self.mongo_host}:{self.mongo_port}/{self.mongo_db}"
         )
-    
+
+settings = Config() #type: ignore
