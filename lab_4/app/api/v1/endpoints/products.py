@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Annotated
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, status, Path
 
 from app.api.v1.schemas.products import (
     ProductCreate,
@@ -82,7 +82,7 @@ async def list_products(
     summary="Получить продукт по ID",
 )
 async def get_product(
-    product_id: Annotated[PydanticObjectId, Query(description="ID продукта в MongoDB")]
+    product_id: Annotated[PydanticObjectId, Path(description="ID продукта в MongoDB")]
 ) -> ProductOut:
     """Возвращает продукт по его ID."""
     product = await Product.get(product_id)
@@ -109,7 +109,7 @@ async def get_product(
     summary="Обновить продукт",
 )
 async def update_product(
-    product_id: Annotated[PydanticObjectId, Query(description="ID продукта в MongoDB")],
+    product_id: Annotated[PydanticObjectId, Path(description="ID продукта в MongoDB")],
     payload: ProductUpdate,
 ) -> ProductOut:
     """Обновляет существующий продукт (только переданные поля)."""
@@ -153,7 +153,7 @@ async def update_product(
     summary="Удалить продукт",
 )
 async def delete_product(
-    product_id: Annotated[PydanticObjectId, Query(description="ID продукта в MongoDB")]
+    product_id: Annotated[PydanticObjectId, Path(description="ID продукта в MongoDB")]
 ) -> None:
     """Удаляет продукт по его ID."""
     product = await Product.get(product_id)

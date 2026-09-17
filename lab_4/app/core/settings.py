@@ -27,7 +27,7 @@ class Config(BaseSettings):
     @property
     def redis_url(self)-> str:
         return(
-            f"redis://{self.redis_password.get_secret_value()}"
+            f"redis://:{self.redis_password.get_secret_value()}"
             f"@{self.redis_host}:{self.redis_port}/{self.redis_db}"
         )
 
@@ -35,7 +35,7 @@ class Config(BaseSettings):
     def mongo_url(self)-> str:
         return(
             f"mongodb://{self.mongo_user}:{self.mongo_password.get_secret_value()}"
-            f"@{self.mongo_host}:{self.mongo_port}"
+            f"@{self.mongo_host}:{self.mongo_port}/{self.mongo_db}?authSource=admin"
         )
 
 settings = Config() #type: ignore

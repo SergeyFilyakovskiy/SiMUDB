@@ -9,23 +9,27 @@ volumes:
   mongo_data:
   redis_data:
 
-
 services:
   mongo:
     image: mongo:7.0
     container_name: mongo
     restart: no
     environment:
-      MONGO_INITDB_USERNAME: ${MONGO_USERNAME}
-      MONGO_INITDB_PASSWORD: ${MONGO_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
     ports:
       - "27017:27017"
     volumes:
-      - ./init/mongo/init-mongo.js:/dokcer-entrypoint-initdb.d/init-mongo.js:ro
+      - ./init/mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
       - mongo_data:/data/db
     networks:
       - internal
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
@@ -38,25 +42,28 @@ services:
       - 512mb
       - --maxmemory-policy
       - allkeys-lru
-      - appendonly
+      - --appendonly
       - yes
     volumes:
       - redis_data:/data
     networks:
       - internal
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   application:
-    build: ./app
+    build: ./
     restart: no
     env_file:
       - .env
+    ports:
+      - "8000:8000"
     depends_on:
-      redis: {condition: service_healthy}
-      mongo: {condition: service_healthy}
+      redis: { condition: service_healthy }
+      mongo: { condition: service_healthy }
     networks:
       - internal
+      - public

@@ -1,5 +1,5 @@
 # app/api/v1/endpoints/reserve.py
-from typing import Annotated
+
 from uuid import UUID
 
 from beanie import PydanticObjectId

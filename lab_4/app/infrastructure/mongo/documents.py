@@ -1,8 +1,11 @@
-from beanie import Document
+
 from datetime import datetime
 
-class Product(Document):
+from beanie import Document
+from pymongo import IndexModel
 
+
+class Product(Document):
     name: str
     price: float
     quantity: int
@@ -13,9 +16,11 @@ class Product(Document):
     class Settings:
         name = "products"
         indexes = [
-            [("name", 1)],
+            [("name", 1)], 
             [("tags", 1)],
             [("quantity", 1)],
-            [("created_at"), -1],
+            [("created_at", -1)],
+            [("tags", 1), ("quantity", -1)], 
+            IndexModel([("price", -1)], name="price_desc"),
+            "name",
         ]
-        
