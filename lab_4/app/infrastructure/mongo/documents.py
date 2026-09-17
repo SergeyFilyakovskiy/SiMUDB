@@ -1,5 +1,5 @@
 from beanie import Document
-
+from datetime import datetime
 
 class Product(Document):
 
@@ -7,6 +7,15 @@ class Product(Document):
     price: float
     quantity: int
     tags: list[str] = []
+    created_at: datetime
+    updated_at: datetime
 
     class Settings:
         name = "products"
+        indexes = [
+            [("name", 1)],
+            [("tags", 1)],
+            [("quantity", 1)],
+            [("created_at"), -1],
+        ]
+        
