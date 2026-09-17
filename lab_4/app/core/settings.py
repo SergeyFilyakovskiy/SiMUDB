@@ -35,7 +35,7 @@ class Config(BaseSettings):
     def mongo_url(self)-> str:
         return(
             f"mongodb://{self.mongo_user}:{self.mongo_password.get_secret_value()}"
-            f"@{self.mongo_host}:{self.mongo_port}/{self.mongo_db}"
+            f"@{self.mongo_host}:{self.mongo_port}"
         )
 
 settings = Config() #type: ignore

@@ -1,6 +1,7 @@
 # app/core/redis.py
 from redis.asyncio import Redis, ConnectionPool
 from app.core.settings import settings
+from contextlib import asynccontextmanager
 
 redis_pool: ConnectionPool | None = None
 
@@ -25,3 +26,11 @@ async def get_redis() -> Redis:
         raise RuntimeError("Redis pool is not initialized. Call init_redis() first.")
     
     return Redis(connection_pool=redis_pool)
+
+@asynccontextmanager
+async def redis_lifespan():
+    await init_redis()
+    try:
+        yield
+    finally: 
+        await close_redis()
