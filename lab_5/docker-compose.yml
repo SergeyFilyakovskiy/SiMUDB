@@ -1,0 +1,29 @@
+services:
+  clickhouse-lab:
+    image: clickhouse/clickhouse-server:24
+    cap_add:
+      - SYS_NICE
+    environment:
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+      CLICKHOUSE_DB: ${CLICKHOUSE_DB}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+      CLICKHOUSE_ALWAYS_RUN_INITDB_SCRIPTS: "true"
+    container_name: clickhouse-lab
+    restart: no
+    volumes:
+        - clickhouse_data:/var/lib/clickhouse
+        - ./clickhouse:/docker-entrypoint-initdb.d
+        - ./clickhouse/config.d:/etc/clickhouse-server/config.d
+    ports:
+        - "8123:8123"
+        - "9000:9000"
+
+    healthcheck:
+        test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+volumes:
+  clickhouse_data:
