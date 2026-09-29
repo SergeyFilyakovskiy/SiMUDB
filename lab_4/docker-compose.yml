@@ -8,6 +8,7 @@ networks:
 volumes:
   mongo_data:
   redis_data:
+  postgres_data:
 
 services:
   mongo:
@@ -55,22 +56,25 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: test_task_keitaro_db
     restart: no
+    container_name: lab_6_sui
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-test_task_keitaro}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
-      retries: 5
-
+      retries: 10
+      start_period: 10s
+      
   application:
     build: ./
     restart: no
@@ -81,6 +85,7 @@ services:
     depends_on:
       redis: { condition: service_healthy }
       mongo: { condition: service_healthy }
+      postgres: { condition: service_healthy }
     networks:
       - internal
       - public

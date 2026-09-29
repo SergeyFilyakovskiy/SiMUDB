@@ -14,6 +14,9 @@ WORKDIR /app
 
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
@@ -24,5 +27,7 @@ COPY --chown=appuser:appuser app ./app
 USER appuser
 
 EXPOSE 8000
+
+ENTRYPOINT ["/entrypoint.sh"]
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
