@@ -1,0 +1,78 @@
+
+services:
+  pg-primary:
+    build: .
+    container_name: pg-primary
+    hostname: pg-primary
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - ROLE=primary
+      - NODE_ID=1
+      - NODE_NAME=pg-primary
+    volumes:
+      - pg_primary_data:/var/lib/postgresql/data
+    networks:
+      - pg_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  pg-standby:
+    build: .
+    container_name: pg-standby
+    hostname: pg-standby
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - ROLE=standby
+      - NODE_ID=2
+      - NODE_NAME=pg-standby
+    volumes:
+      - pg_standby_data:/var/lib/postgresql/data
+    networks:
+      - pg_net
+    depends_on:
+      pg-primary:
+        condition: service_healthy
+
+  pg-witness:
+    build: .
+    container_name: pg-witness
+    hostname: pg-witness
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - ROLE=witness
+      - NODE_ID=3
+      - NODE_NAME=pg-witness
+    volumes:
+      - pg_witness_data:/var/lib/postgresql/data
+    networks:
+      - pg_net
+    depends_on:
+      pg-primary:
+        condition: service_healthy
+
+  # Клиент для эмуляции приложения и тестов
+  app-client:
+    image: alpine:latest
+    container_name: app-client
+    command: >
+      sh -c "apk add --no-cache bash postgresql-client && 
+             echo 'Клиент готов. Запусти docker compose exec app-client bash' && 
+             tail -f /dev/null"
+    networks:
+      - pg_net
+    depends_on:
+      - pg-primary
+      - pg-standby
+      - pg-witness
+
+volumes:
+  pg_primary_data:
+  pg_standby_data:
+  pg_witness_data:
+
+networks:
+  pg_net:
+    driver: bridge
