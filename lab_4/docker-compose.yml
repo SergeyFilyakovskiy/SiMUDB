@@ -21,7 +21,6 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./init/mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
       - mongo_data:/data/db
     networks:
       - internal
@@ -51,6 +50,24 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: test_task_keitaro_db
+    restart: no
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-test_task_keitaro}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
       timeout: 5s
       retries: 5
 

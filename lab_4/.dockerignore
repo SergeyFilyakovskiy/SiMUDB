@@ -9,6 +9,5 @@ __pycache__
 .ruff_cache
 tests/
 *.md
-.env
 .env.*
 .venv

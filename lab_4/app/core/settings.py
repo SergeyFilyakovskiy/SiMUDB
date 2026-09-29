@@ -13,6 +13,12 @@ class Config(BaseSettings):
         extra='ignore'
     )
 
+    postgres_user: str = Field(validation_alias='POSTGRES_USER')
+    postgres_password: SecretStr = Field(validation_alias='POSTGRES_PASSWORD')
+    postgres_host: str = Field(validation_alias='POSTGRES_HOST')
+    postgres_port: int = Field(validation_alias='POSTGRES_PORT')
+    postgres_db_name: str = Field(validation_alias='POSTGRES_DB')
+
     redis_password: SecretStr = Field(validation_alias='REDIS_PASSWORD')
     redis_host: str = Field(validation_alias='REDIS_HOST')
     redis_port: int = Field(validation_alias='REDIS_PORT')
@@ -38,4 +44,20 @@ class Config(BaseSettings):
             f"@{self.mongo_host}:{self.mongo_port}/{self.mongo_db}?authSource=admin"
         )
 
+    @property
+    def db_async_url(self) -> str:
+        return (
+            f"postgresql+asyncpg://{self.postgres_user}:"
+            f"{self.postgres_password.get_secret_value()}"
+            f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db_name}"
+        )
+
+    @property
+    def db_migrations_url(self) -> str:
+        return (
+            f"postgresql+psycopg2://{self.postgres_user}:"
+            f"{self.postgres_password.get_secret_value()}"
+            f"@{self.postgres_host}:{self.postgres_port}/{self.postgres_db_name}"
+        )
+    
 settings = Config() #type: ignore
