@@ -1,7 +1,7 @@
 .PHONY: help up down restart logs clean shell seed analyze status sizes
 
 DOCKER_COMPOSE := docker compose
-CONTAINER_NAME := clickhouse
+CONTAINER_NAME := clickhouse-lab
 INIT_DIR       := ./clickhouse
 SCRIPTS_DIR    := ./scripts
 

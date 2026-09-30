@@ -1,18 +1,7 @@
--- init.sql
--- Создание таблиц для анализа пользовательской активности
+-- 01-init.sql
+-- Создаём таблицы для анализа пользовательской активности
 
--- Вспомогательный словарь для типов событий (для удобства)
-CREATE DICTIONARY IF NOT EXISTS event_types_dict (
-    event_id UInt8,
-    event_name String,
-    event_weight Float32
-)
-PRIMARY KEY event_id
-SOURCE(CLICKHOUSE(TABLE 'event_types_src' DB 'default'))
-LIFETIME(MIN 60 MAX 120)
-LAYOUT(FLAT());
-
--- Таблица-источник для словаря (необходимо создать перед словарем)
+-- Таблица-источник для словаря
 CREATE TABLE IF NOT EXISTS event_types_src (
     event_id UInt8,
     event_name String,
@@ -28,6 +17,17 @@ INSERT INTO event_types_src VALUES
     (6, 'add_to_cart', 3.0),
     (7, 'logout', 0.5);
 
+-- Словарь для типов событий
+CREATE DICTIONARY IF NOT EXISTS event_types_dict (
+    event_id UInt8,
+    event_name String,
+    event_weight Float32
+)
+PRIMARY KEY event_id
+SOURCE(CLICKHOUSE(TABLE 'event_types_src'))
+LIFETIME(MIN 60 MAX 120)
+LAYOUT(FLAT());
+
 -- ============================================================
 -- Таблица 1: Партиция по ДНЮ, ключ сортировки (user_id, ts)
 -- ============================================================
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS events_daily_userid (
     session_id UUID,
     device_type LowCardinality(String),
     country LowCardinality(String),
-    duration UInt32 COMMENT 'Время на странице в секундах'
+    duration UInt32
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMMDD(ts)
 ORDER BY (user_id, ts)
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS events_daily_ts (
     session_id UUID,
     device_type LowCardinality(String),
     country LowCardinality(String),
-    duration UInt32 COMMENT 'Время на странице в секундах'
+    duration UInt32
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMMDD(ts)
 ORDER BY (ts, user_id)
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS events_monthly_userid (
     session_id UUID,
     device_type LowCardinality(String),
     country LowCardinality(String),
-    duration UInt32 COMMENT 'Время на странице в секундах'
+    duration UInt32
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMM(ts)
 ORDER BY (user_id, ts)
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS events_monthly_ts (
     session_id UUID,
     device_type LowCardinality(String),
     country LowCardinality(String),
-    duration UInt32 COMMENT 'Время на странице в секундах'
+    duration UInt32
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMM(ts)
 ORDER BY (ts, user_id)
@@ -105,7 +105,7 @@ TTL ts + INTERVAL 1 YEAR
 SETTINGS index_granularity = 8192;
 
 -- ============================================================
--- Таблица для сравнения сжатия и размера
+-- Таблица для сравнения размеров
 -- ============================================================
 CREATE TABLE IF NOT EXISTS table_sizes_compare (
     table_name String,
@@ -117,8 +117,7 @@ CREATE TABLE IF NOT EXISTS table_sizes_compare (
 ORDER BY table_name;
 
 -- ============================================================
--- Материализованное представление для агрегации по дням
--- (оптимизировано для аналитики)
+-- Материализованное представление
 -- ============================================================
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv_daily_stats
 ENGINE = SummingMergeTree()
@@ -134,18 +133,5 @@ AS SELECT
     sum(event_value) AS total_value
 FROM events_daily_userid
 GROUP BY day, country, device_type;
-
--- Таблица для логирования времени выполнения запросов
-CREATE TABLE IF NOT EXISTS query_performance_log (
-    query_id String,
-    query_name String,
-    table_name String,
-    execution_time_ms Float64,
-    rows_read UInt64,
-    bytes_read UInt64,
-    query_text String,
-    executed_at DateTime DEFAULT now()
-) ENGINE = MergeTree()
-ORDER BY (executed_at, query_id);
 
 SELECT 'init.sql: Все таблицы успешно созданы!' AS status;
