@@ -68,6 +68,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - internal
+      - public
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -86,6 +87,7 @@ services:
       redis: { condition: service_healthy }
       mongo: { condition: service_healthy }
       postgres: { condition: service_healthy }
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     networks:
       - internal
       - public

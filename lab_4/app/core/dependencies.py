@@ -5,16 +5,16 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from fastapi import Depends, Request
 
-from lab_4.app.v2.postgres.session import async_session as get_pg_session_v2
-from lab_4.app.v1.infrastructure.cache.reserve import RedisReserveProduct
-from lab_4.app.v1.infrastructure.mongo.product_quantity_service import ProductQuantityService
-from lab_4.app.v1.infrastructure.services.reserve_service import ReserveService
+from app.v2.postgres.session import async_session as get_pg_session_v2
+from app.v1.infrastructure.cache.reserve import RedisReserveProduct
+from app.v1.infrastructure.mongo.product_quantity_service import ProductQuantityService
+from app.v1.infrastructure.services.reserve_service import ReserveService
 
 
-from lab_4.app.v2.postgres.repositories.inventory import InventoryRepository
-from lab_4.app.v2.mongo.repositories.events import MongoEventRepository
-from lab_4.app.v2.redis.repositories.reservations import RedisReservationRepository
-from lab_4.app.v2.services.saga import OrderConfirmationSaga
+from app.v2.postgres.repositories.inventory import InventoryRepository
+from app.v2.mongo.repositories.events import MongoEventRepository
+from app.v2.redis.repositories.reservations import RedisReservationRepository
+from app.v2.services.saga import OrderConfirmationSaga
 
 
 def get_redis(request: Request):

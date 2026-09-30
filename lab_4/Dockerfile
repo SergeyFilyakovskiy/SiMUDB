@@ -1,33 +1,31 @@
+FROM python:3.14-slim-bookworm
 
-# ---------- builder ----------
-FROM python:3.14-slim AS builder
-WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+WORKDIR /app
+
 
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
 
-# ---------- runtime ----------
-FROM python:3.14-slim AS runtime
-WORKDIR /app
 
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+COPY . .
+
 
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-ENV PATH="/app/.venv/bin:$PATH" \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
-
-COPY --from=builder /app/.venv /app/.venv
-COPY --chown=appuser:appuser app ./app
-
-USER appuser
+ENV PYTHONPATH=/app
+ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
 
 ENTRYPOINT ["/entrypoint.sh"]
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

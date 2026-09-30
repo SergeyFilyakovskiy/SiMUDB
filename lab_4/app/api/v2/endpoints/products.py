@@ -20,11 +20,11 @@ from app.core.dependencies import (
     get_v2_reservation_repo,
     get_mongo_event_repo,
 )
-from lab_4.app.v2.postgres.models import Product, Warehouse, WarehouseStock
-from lab_4.app.v2.postgres.repositories.inventory import InventoryRepository
-from lab_4.app.v2.redis.repositories.reservations import RedisReservationRepository
-from lab_4.app.v2.mongo.repositories.events import MongoEventRepository
-from lab_4.app.v2.services.saga import OrderConfirmationSaga
+from app.v2.postgres.models import Product, Warehouse, WarehouseStock
+from app.v2.postgres.repositories.inventory import InventoryRepository
+from app.v2.redis.repositories.reservations import RedisReservationRepository
+from app.v2.mongo.repositories.events import MongoEventRepository
+from app.v2.services.saga import OrderConfirmationSaga
 
 router = APIRouter(prefix="/products", tags=["v2 products"])
 

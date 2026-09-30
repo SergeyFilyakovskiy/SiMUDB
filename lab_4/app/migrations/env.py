@@ -4,8 +4,8 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from lab_4.app.v2.postgres.models import Base, Warehouse
-from lab_4.app.core.settings import settings
+from app.v2.postgres.models import Base, Warehouse
+from app.core.settings import settings
 config = context.config
 
 if config.config_file_name is not None:

@@ -14,7 +14,7 @@ from app.api.v1.schemas.reserve import (
     UserReservations,
 )
 from app.core.dependencies import get_reserve_service
-from lab_4.app.v1.infrastructure.services.reserve_service import ReserveService
+from app.v1.infrastructure.services.reserve_service import ReserveService
 
 router = APIRouter(prefix="/reserve", tags=["reserve"])
 

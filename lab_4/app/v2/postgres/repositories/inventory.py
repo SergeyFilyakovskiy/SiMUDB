@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from lab_4.app.v2.postgres.models import Product, WarehouseStock
+from app.v2.postgres.models import Product, WarehouseStock
 
 
 class InventoryRepository:

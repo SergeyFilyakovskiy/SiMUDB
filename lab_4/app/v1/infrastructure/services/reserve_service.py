@@ -5,8 +5,8 @@ from uuid import UUID
 
 from beanie import PydanticObjectId
 
-from lab_4.app.v1.infrastructure.cache.reserve import RedisReserveProduct
-from lab_4.app.v1.infrastructure.mongo.product_quantity_service import ProductQuantityService
+from app.v1.infrastructure.cache.reserve import RedisReserveProduct
+from app.v1.infrastructure.mongo.product_quantity_service import ProductQuantityService
 
 
 class ReserveService:

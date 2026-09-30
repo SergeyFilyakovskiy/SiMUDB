@@ -3,8 +3,8 @@ from contextlib import asynccontextmanager, AsyncExitStack
 
 from fastapi import FastAPI
 
-from lab_4.app.v1.infrastructure.cache.redis_client import redis_lifespan
-from lab_4.app.v1.infrastructure.mongo.mongo_client import mongo_lifespan
+from app.v1.infrastructure.cache.redis_client import redis_lifespan
+from app.v1.infrastructure.mongo.mongo_client import mongo_lifespan
 
 from app.api.v1.routers import v1_router
 from app.api.v2.routers import v2_router

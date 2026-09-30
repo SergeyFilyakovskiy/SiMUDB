@@ -10,7 +10,7 @@ from app.api.v1.schemas.products import (
     ProductOut,
     ProductUpdate,
 )
-from lab_4.app.v1.infrastructure.mongo.documents import Product
+from app.v1.infrastructure.mongo.documents import Product
 
 router = APIRouter(prefix="/products", tags=["products"])
 
